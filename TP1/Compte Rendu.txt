@@ -1,0 +1,16 @@
+1- a) final_state([[1, 2, 3, 4],
+             	   [5, 6, 7, 8],
+             	   [9, 10, 11, 12]
+	     	   [13, 14, 15, vide]).
+
+   b) La première requête permet de connaitre la place de d dans l'état initial. C étant la colonne et L la ligne.
+      La deuxième requête permet de connaitre la lettre qui se trouve à la ligne 2 et colonne 3 dans l'état final.
+
+   c) Cette requête verifie si a est à la même place dans l'état initial et dans l'état final:
+      initial_state(Ini), nth1(L, Ini, Ligne), nth1(C, Ligne, a), final_state(Fin), nth1(L, Fin, Ligne2), nth1(C, Ligne2, a).
+
+   d) initial_state(Ini), rule(_,1,Ini,Next).
+   e)initial_state(Ini), findall(X, rule(X,1,Ini,Next),Y).
+   d)initial_state(Ini), findall([X,Next], rule(X,1,Ini,Next),Y).
+
+
