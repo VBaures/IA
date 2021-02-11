@@ -46,176 +46,7 @@ Predicat principal de l'algorithme :
 :- ['taquin.pl'].    % predicats definissant le systeme a etudier
 
 %*******************************************************************************
-initial_state([ [e, f, g],
-                [d,vide,h],
-                [c, b, a]  ]).
 
-empty(nil).
-
-write_state([]).
-write_state([Line|Rest]) :-
-   writeln(Line),
-   write_state(Rest).
-   
-
-%**********************************************
-% REGLES DE DEPLACEMENT (up, down, left, right)             
-%**********************************************
-   % format :   rule(+Rule_Name, ?Rule_Cost, +Current_State, ?Next_State)
-   
-rule(up,   1, S1, S2) :-
-   vertical_permutation(_X,vide,S1,S2).
-
-rule(down, 1, S1, S2) :-
-   vertical_permutation(vide,_X,S1,S2).
-
-rule(left, 1, S1, S2) :-
-   horizontal_permutation(_X,vide,S1,S2).
-
-rule(right,1, S1, S2) :-
-   horizontal_permutation(vide,_X,S1,S2).
-
-   %***********************
-   % Deplacement horizontal            
-   %***********************
-    % format :   horizontal_permutation(?Piece1,?Piece2,+Current_State, ?Next_State)
-	
-horizontal_permutation(X,Y,S1,S2) :-
-   append(Above,[Line1|Rest], S1),
-   exchange(X,Y,Line1,Line2),
-   append(Above,[Line2|Rest], S2).
-
-   %***********************************************
-   % Echange de 2 objets consecutifs dans une liste             
-   %***********************************************
-   
-exchange(X,Y,[X,Y|List], [Y,X|List]).
-exchange(X,Y,[Z|List1],  [Z|List2] ):-
-   exchange(X,Y,List1,List2).
-
-   %*********************
-   % Deplacement vertical            
-   %*********************
-   
-vertical_permutation(X,Y,S1,S2) :-
-   append(Above, [Line1,Line2|Below], S1), % decompose S1
-   delete(N,X,Line1,Rest1),    % enleve X en position N a Line1,   donne Rest1
-   delete(N,Y,Line2,Rest2),    % enleve Y en position N a Line2,   donne Rest2
-   delete(N,Y,Line3,Rest1),    % insere Y en position N dans Rest1 donne Line3
-   delete(N,X,Line4,Rest2),    % insere X en position N dans Rest2 donne Line4
-   append(Above, [Line3,Line4|Below], S2). % recompose S2 
-
-   %***********************************************************************
-   % Retrait d'une occurrence X en position N dans une liste L (resultat R) 
-   %***********************************************************************
-   % use case 1 :   delete(?N,?X,+L,?R)
-   % use case 2 :   delete(?N,?X,?L,+R)   
-   
-delete(1,X,[X|L], L).
-delete(N,X,[Y|L], [Y|R]) :-
-   delete(N1,X,L,R),
-   N is N1 + 1.
-
-
-   
-   
-   %*******************
-   % PARTIE A COMPLETER
-   %*******************
-   
-   %*******************************************************************
-   % Coordonnees X(colonne),Y(Ligne) d'une piece P dans une situation U
-   %*******************************************************************
-	% format : coordonnees(?Coord, +Matrice, ?Element)
-	% Définit la relation entre des coordonnees [Ligne, Colonne] et un element de la matrice
-	/*
-	Exemples
-	
-	?- coordonnees(Coord, [[a,b,c],[d,e,f]],  e).        % quelles sont les coordonnees de e ?
-	Coord = [2,2]
-	yes
-	
-	?- coordonnees([2,3], [[a,b,c],[d,e,f]],  P).        % qui a les coordonnees [2,3] ?
-	P=f
-	yes
-	*/
-
-	
-	coordonnees([L,C], Mat, Elt) :-
-    	nth1(L,Mat,Ligne),
-    	nth1(C,Ligne,Elt).    %********
-											 % A FAIRE
-											 %********
-
-											 
-   %*************
-   % HEURISTIQUES
-   %*************
-   
-heuristique(U,H) :-
-    heuristique1(U, H).  % au debut on utilise l'heuristique 1 
-%   heuristique2(U, H).  % ensuite utilisez plutot l'heuristique 2  
-   
-   
-   %****************
-   %HEURISTIQUE no 1
-   %****************
-   % Nombre de pieces mal placees dans l'etat courant U
-   % par rapport a l'etat final F
-	diff(vide,_,0).
-	diff(E1,E1,0):- 
-    E1\=vide.
-	diff(E1,E2,1):- 
-    E1\=vide, 
-    E1\=E2.
-
-	diff_ligne([],[],0).
-	diff_ligne([L1|R1],[L2|R2],D) :-
-    	diff(L1,L2,D1),
-    	diff_ligne(R1,R2,D2),
-    	D is D1+D2.
-	
-	diff_heurastique([],[],0).
-	diff_heurastique([H1|R1],[H2|R2],D):-
-		diff_ligne(H1,H2,D1),
-		diff_heurastique(R1,R2,D2),
-		D is D1+D2.
-
-    
-    heuristique1(U, H) :- 
-    final_state(Fin),
-    diff_heurastique(U,Fin,H).      %********
-                                    % A FAIRE
-                                    %********
-   
-   
-   %****************
-   %HEURISTIQUE no 2
-   %****************
-   
-   % Somme des distances de Manhattan à parcourir par chaque piece
-   % entre sa position courante et sa positon dans l'etat final
-	distance_manhattan(Elt, Dist, Ini,Fin):-
-        Elt=vide -> Dist is 0;
-    	coordonnees([Li,Ci],Ini,Elt),
-        coordonnees([Lf,Cf],Fin,Elt),
-        Dist is abs(Lf-Li)+abs(Cf-Ci).
-
-	distance_manhattan_list([],0,_,_).
-	distance_manhattan_list([L1|R1],Dist,Ini,Fin):-
-    	distance_manhattan(L1,Dist1,Ini,Fin),
-    	distance_manhattan_list(R1,Dist2,Ini,Fin),
-    	Dist is Dist1+Dist2.
-   
-	distance_manhattan_heurastique([],0,_,_).
-	distance_manhattan_heurastique([L1|R1],Dist,Ini,Fin):-
-    	distance_manhattan_list(L1,Dist1,Ini,Fin),
-    	distance_manhattan_heurastique(R1,Dist2,Ini,Fin),
-    	Dist is Dist1+Dist2.
-
-    heuristique2(U, H) :-
-		final_state(Fin),
-		distance_manhattan_heurastique(U,H,U,Fin).
 
 %******************************************************************************
 
@@ -224,21 +55,68 @@ main :-
     heuristique2(S0,H0),
 	% initialisations Pf, Pu et Q 
 	empty(Pf),
-	empty(Pu),
-	empty(Q).
-	% lancement de Aetoile.   %********
-			% A FAIRE
-			%********
+	empty(Ps),
+	empty(Q),
+	insert([[H0,H0,0],S0],Pf,NewPf),
+	insert([S0,[H0,H0,0],nil,nil],Ps,NewPs),
+	aetoile(NewPf,NewPs,Q).
+	% lancement de Aetoile.  
+
 
 
 
 %*******************************************************************************
 
+
+aetoile(Pf, Ps, _) :-
+	empty(Pf),
+	empty(Ps),
+	write("Pas de solution: l'état final n'est pas atteignable!").
+
+aetoile(Pf, [], Qs) :-
+	final_state(Fin),
+	suppress_min(Min,Pf,_),
+	[_,U] is Min,
+	Fin is U,
+	write_state(U),
+	write_state(Qs).
+
 aetoile(Pf, Ps, Qs) :-
-	true.   %********
-			% A FAIRE
-			%********
+	suppress_min(Min,Pf,NewPf),
+	[[F,H,G],U] is Min,	
+	suppress_min([U,[F,H,G],_,_],Ps,NewPs),
+	expand(U,List),
+	loop_successors(List,NewPf, NewPs,Qs),
+	insert(U,Qs,NewQs),
+	aetoile(NewPf,NewPs,NewQs).
 	
 
-	
+
+expand([U,[F,H,G],Min,_],List):-
+		findall([Next,[F,H,G],Min,Act],rule(Act,1,U,Next),Y),
+		expand_cost(Y,List).
+
+expand_cost([[U,[_,_,G],Min,Act]|Rest],list1):-
+	Gs is G+1,
+	heuristique2(U,Hs),
+	Fs is Gs+Hs,
+	Etat = [U,[Fs,Hs,Gs],Min,Act],
+	expand_cost(Rest,list2),
+	list1 = [Etat|list2].
+
+expand_cost([],_).
+
+loop_successors([],_,_,_).
+
+loop_successors([[U,[F,H,G],Min,Act]|Rest],Pf,Ps,Qs):-
+	belongs(U,Qs)-> loop_successors(Rest,Pf,Ps,Qs);
+	belongs([U,_,_,_],Ps)-> update([U,[F,H,G],Min,Act],Ps,Pf,New_Ps,New_Pf), loop_successors(Rest,New_Pf,New_Ps,Qs);
+	insert([[F,H,G],U],Pf,New_Pf),insert([U,[F,H,G],Min,Act],Ps,New_Ps),loop_successors(Rest,New_Pf,New_Ps,Qs).
+
+
    
+update([U,[F,H,G],Min,Act],Pu,Pf,Pu_2,Pf_2):-
+	suppress([U,[F1,H1,G1],Pere,A],Pu,New_Pu),
+	F1 > F -> insert([U,[F,H,G],Min,Act],New_Pu,Pu_2),suppress([U,[F1,H1,G1]],Pf,New_Pf),insert([[F,H,G],U],New_Pf,Pf_2);
+	insert([U,[F1,H1,G1],Pere,A],New_Pu,Pu_2), Pf_2 is Pf.
+
