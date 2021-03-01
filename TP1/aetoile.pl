@@ -47,9 +47,6 @@ Predicat principal de l'algorithme :
 
 %*******************************************************************************
 
-
-%******************************************************************************
-
 main :-
     initial_state(S0),
     heuristique2(S0,H0),
@@ -71,52 +68,85 @@ main :-
 aetoile(Pf, Ps, _) :-
 	empty(Pf),
 	empty(Ps),
-	write("Pas de solution: l'état final n'est pas atteignable!").
+	writeln("Pas de solution: l'état final n'est pas atteignable!").
 
-aetoile(Pf, [], Qs) :-
+aetoile(Pf, nil, Qs) :-
+	writeln("debut 2"),
 	final_state(Fin),
 	suppress_min(Min,Pf,_),
 	[_,U] is Min,
 	Fin is U,
-	write_state(U),
-	write_state(Qs).
+	affiche_solution(Qs, Fin) .
 
 aetoile(Pf, Ps, Qs) :-
-	suppress_min(Min,Pf,NewPf),
-	[[F,H,G],U] is Min,	
-	suppress_min([U,[F,H,G],_,_],Ps,NewPs),
-	expand(U,List),
-	loop_successors(List,NewPf, NewPs,Qs),
+	writeln("debut"),
+	suppress_min([[F,H,G],U],Pf,NewPf),
+	writeln("suppress 1"),
+	suppress([U,_,Pere,Act],Ps,NewPs),
+	writeln("suppress"),
+	expand([U,[F,H,G],Pere,Act],List),
+	writeln("expand"),
+	loop_successors(List,NewPf, NewPs,Qs,Pf_2, Ps_2),
 	insert(U,Qs,NewQs),
-	aetoile(NewPf,NewPs,NewQs).
+	aetoile(Pf_2,Ps_2,NewQs).
 	
 
 
-expand([U,[F,H,G],Min,_],List):-
-		findall([Next,[F,H,G],Min,Act],rule(Act,1,U,Next),Y),
-		expand_cost(Y,List).
+expand([U,[F,H,G],Pere,Act],Y):-
+		findall([Next,[Fs,Hs,Gs],[U,[F,H,G],Pere,Act],New_Act],expand_cost(U,G,Gs,Next,Hs,Fs,New_Act),Y).
 
-expand_cost([[U,[_,_,G],Min,Act]|Rest],list1):-
+expand_cost(U,G,Gs,Next,Hs,Fs,New_Act):-
+	rule(New_Act,1,U,Next),
 	Gs is G+1,
-	heuristique2(U,Hs),
-	Fs is Gs+Hs,
-	Etat = [U,[Fs,Hs,Gs],Min,Act],
-	expand_cost(Rest,list2),
-	list1 = [Etat|list2].
-
-expand_cost([],_).
-
-loop_successors([],_,_,_).
-
-loop_successors([[U,[F,H,G],Min,Act]|Rest],Pf,Ps,Qs):-
-	belongs(U,Qs)-> loop_successors(Rest,Pf,Ps,Qs);
-	belongs([U,_,_,_],Ps)-> update([U,[F,H,G],Min,Act],Ps,Pf,New_Ps,New_Pf), loop_successors(Rest,New_Pf,New_Ps,Qs);
-	insert([[F,H,G],U],Pf,New_Pf),insert([U,[F,H,G],Min,Act],Ps,New_Ps),loop_successors(Rest,New_Pf,New_Ps,Qs).
+	heuristique2(Next,Hs),
+	Fs is Gs+Hs.
 
 
-   
+loop_successors([],Pf,Ps,_,Pf, Ps):-writeln("ici").
+
+loop_successors([[U,[F,H,G],Min,Act]|Rest],Pf,Ps,Qs,New_pf2, New_ps2):-
+	writeln("deb loop"),
+	(belongs(U,Qs)->
+		writeln(U),
+		writeln(Qs),
+		writeln(Rest),loop_successors(Rest,Pf,Ps,Qs,New_pf2, New_ps2)
+	;
+		(belongs([U,_,_,_],Ps)->
+			writeln(Rest),
+			update([U,[F,H,G],Min,Act],Ps,Pf,Ps_2,Pf_2), 
+			loop_successors(Rest,Pf_2,Ps_2,Qs,New_pf2, New_ps2)
+		;
+			writeln("insert loop"),
+			insert([U,[F,H,G],Min,Act],Ps,Ps_2),
+			put_flat(Pf),nl,nl,
+			writeln([ [F,H,G], U]), nl,
+			write(Pf_2),
+			insert([ [F,H,G], U],Pf,Pf_2),
+			writeln("courgette"),
+			loop_successors(Rest,Pf_2,Ps_2,Qs,New_pf2, New_ps2)
+		)
+	).
+  
 update([U,[F,H,G],Min,Act],Pu,Pf,Pu_2,Pf_2):-
+	writeln("update"),
 	suppress([U,[F1,H1,G1],Pere,A],Pu,New_Pu),
-	F1 > F -> insert([U,[F,H,G],Min,Act],New_Pu,Pu_2),suppress([U,[F1,H1,G1]],Pf,New_Pf),insert([[F,H,G],U],New_Pf,Pf_2);
-	insert([U,[F1,H1,G1],Pere,A],New_Pu,Pu_2), Pf_2 is Pf.
+	F1 > F -> insert([U,[F,H,G],Min,Act],New_Pu,Pu_2),suppress([U,[F1,H1,G1]],Pf,New_Pf),insert([[F,H,G],U],New_Pf,Pf_2),
+	insert([U,[F1,H1,G1],Pere,A],New_Pu,Pu_2), Pf_2 is Pf,F,G,H,Min,Act.
 
+
+
+affiche_solution(Qs, U) :-
+	belongs([U, _, nil, nil], Qs),
+	write("\n=== Solution ===\n\n"),
+	write_state(U).
+
+affiche_solution(Qs, U) :-
+	belongs([U, _, PereU, ActionU], Qs),
+	PereU \= nil,
+	affiche_solution(Qs, PereU),
+
+	write("\n\t|\n\t"),
+	write(ActionU),
+	write("\n\t|\n"),
+	write("\tv\n"),
+	write_state(U).

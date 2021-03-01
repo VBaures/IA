@@ -187,7 +187,7 @@ insert(Elem, AVL, NEW_AVL) :-
 			AVL_INT = avl(New_Gauche, Racine, Droite, H_Int), 
 			right_balance(AVL_INT, NEW_AVL)
 		;
-	    % Elem @> Racine
+	    % Elem @>= Racine
 			% insertion dans le ss-arbre droite
 			insert(Elem, Droite, New_Droite),
 			height(New_Droite, New_HD),

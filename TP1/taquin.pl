@@ -24,12 +24,12 @@
 
 % AUTRES EXEMPLES POUR LES TESTS DE  A*
 
-/*
+
 initial_state([ [ a, b, c],        
                 [ g, h, d],
                 [vide,f, e] ]). % h2=2, f*=2
 
-initial_state([ [b, c, d],
+/*initial_state([ [b, c, d],
                 [a,vide,g],
                 [f, h, e]  ]). % h2=10 f*=10
 	
@@ -41,9 +41,9 @@ initial_state([ [e, f, g],
                 [d,vide,h],
                 [c, b, a]  ]). % h2=24, f*=30 
 */
-initial_state([ [a, b, c],
+/*initial_state([ [a, b, c],
                 [g,vide,d],
-                [h, f, e]]). % etat non connexe avec l'etat final (PAS DE SOLUTION)
+                [h, f, e]]). % etat non connexe avec l'etat final (PAS DE SOLUTION)*/
 
 
 
@@ -206,11 +206,13 @@ heuristique(U,H) :-
    % Somme des distances de Manhattan à parcourir par chaque piece
    % entre sa position courante et sa positon dans l'etat final
 	distance_manhattan(Elt, Dist, Ini,Fin):-
-        Elt=vide -> Dist is 0;
-    	coordonnees([Li,Ci],Ini,Elt),
-        coordonnees([Lf,Cf],Fin,Elt),
-        Dist is abs(Lf-Li)+abs(Cf-Ci).
-
+        Elt=vide ->
+            Dist is 0
+        ;
+    	     coordonnees([Li,Ci],Ini,Elt),
+           coordonnees([Lf,Cf],Fin,Elt),
+           Dist is abs(Lf-Li)+abs(Cf-Ci).
+/*
 	distance_manhattan_list([],0,_,_).
 	distance_manhattan_list([L1|R1],Dist,Ini,Fin):-
     	distance_manhattan(L1,Dist1,Ini,Fin),
@@ -222,6 +224,12 @@ heuristique(U,H) :-
     	distance_manhattan_list(L1,Dist1,Ini,Fin),
     	distance_manhattan_heurastique(R1,Dist2,Ini,Fin),
     	Dist is Dist1+Dist2.
+*/
+distance_manhattan_heurastique(U,H,U,Fin) :-
+   findall(Dist, distance_manhattan(Elt, Dist, U,Fin), Distances),
+   sumlist(Distances, H).
+
+
 
     heuristique2(U, H) :-
 		final_state(Fin),
