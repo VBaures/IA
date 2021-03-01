@@ -201,6 +201,16 @@ le nombre d'alignements possibles pour J
 moins
 le nombre d'alignements possibles pour l'adversaire de J
 */
+nb_ligne_possible(_,[],0).
+
+nb_ligne_possible(J,[M1|MRest],N):-
+    not(possible(M1,J)),
+    nb_ligne_possible(J,MRest,N).
+
+nb_ligne_possible(J,[M1|MRest],N):-
+    possible(M1,J),
+    nb_ligne_possible(J,MRest,N2), 
+    N is N2+1.
 
 
 heuristique(J,Situation,H) :-		% cas 1
@@ -218,5 +228,11 @@ alignement_perdant(Alig,J), !.
 % c-a-d si Situation n'est ni perdante ni gagnante.
 
 % A FAIRE 					cas 3
-% heuristique(J,Situation,H) :- ? ? ? ?
+
+heuristique(J,Situation,H) :-
+    findall(A,alignement(A,Situation),Alignements),
+    nb_ligne_possible(J,Alignements,Nperso),
+    adversaire(J,Jadvers),
+    nb_ligne_possible(Jadvers,Alignements,Nadvers),
+    H is Nperso-Nadvers.
 
