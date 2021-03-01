@@ -74,14 +74,6 @@ negamax(J,Etat,P,Pmax,[Coup,V]):-
 
 
 
-  test_negamax(Pmax, B, CPU_TIME) :-
-    statistics(cputime, BEFORE),
-    main(B, _, Pmax),
-    statistics(cputime, AFTER),
-    CPU_TIME is AFTER - BEFORE.
-  
-
-
 
 
 
