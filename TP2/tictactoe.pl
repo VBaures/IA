@@ -132,7 +132,7 @@ faut pas realiser l'unification.
 
 unifiable(X,_):-var(X).
 unifiable(X,J) :- ground(X), X==J.
-    
+
 /**********************************
 DEFINITION D'UN ALIGNEMENT GAGNANT
 OU PERDANT POUR UN JOUEUR DONNE J
@@ -160,9 +160,15 @@ no
 
 % A FAIRE
 
-% alignement_gagnant(Ali, J) :- ? ? ? ?
+alignement_gagnant([], _).
+alignement_gagnant([L1|LRest],J):-
+    ground(L1),
+    L1 == J,
+    alignement_gagnant(LRest,J).
 
-% alignement_perdant(Ali, J) :- ? ? ? ?
+alignement_perdant(Ali, J) :-
+    adversaire(J,Jadvers),
+    alignement_gagnant(Ali,Jadvers).
 
 
 /* ****************************
