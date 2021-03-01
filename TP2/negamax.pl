@@ -74,7 +74,12 @@ negamax(J,Etat,P,Pmax,[Coup,V]):-
 
 
 
-
+  test_negamax(Pmax, B, CPU_TIME) :-
+    statistics(cputime, BEFORE),
+    main(B, _, Pmax),
+    statistics(cputime, AFTER),
+    CPU_TIME is AFTER - BEFORE.
+  
 
 
 
@@ -163,4 +168,10 @@ Compléter puis tester le programme principal pour plusieurs valeurs de la profo
 Pmax = 1, 2, 3, 4 ...
 Commentez les résultats obtenus.
 */
+
+test_negamax(Pmax, B, CPU_TIME) :-
+	statistics(cputime, BEFORE),
+	main(B, _, Pmax),
+	statistics(cputime, AFTER),
+	CPU_TIME is AFTER - BEFORE.
 
