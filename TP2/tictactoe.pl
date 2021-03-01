@@ -129,14 +129,10 @@ faut pas realiser l'unification.
 */
 
 % A FAIRE 
-unifiable(X,J) :-
-    unifiable_bis(X,J).
-    
-unifiable_bis([],_).
-unifiable_bis([X1|XRest],J):-
-    X1=J->unifiable_bis(XRest,J);
-        X1=_->unifiable_bis(XRest,J).
 
+unifiable(X,_):-var(X).
+unifiable(X,J) :- ground(X), X==J.
+    
 /**********************************
 DEFINITION D'UN ALIGNEMENT GAGNANT
 OU PERDANT POUR UN JOUEUR DONNE J
