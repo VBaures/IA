@@ -118,9 +118,10 @@ On suppose que chaque element de la liste est du type [C,V]
 
 A FAIRE : ECRIRE ici les clauses de meilleur/2
 */
-
-
-
+meilleur([X],X).
+meilleur([[C1,V1]|[[C2,V2]|Rest]],[C,V]):-
+  V1<V2->meilleur([[C1,V1]|Rest],[C,V]);
+  meilleur([[C2,V2]|Rest],[C,V]).
 /******************
   PROGRAMME PRINCIPAL
   *******************/
