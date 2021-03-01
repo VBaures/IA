@@ -80,20 +80,22 @@ aetoile(Pf, nil, Qs) :-
 
 aetoile(Pf, Ps, Qs) :-
 	writeln("debut"),
-	suppress_min([[F,H,G],U],Pf,NewPf),
+	suppress_min([[_,_,G],U],Pf,NewPf),
 	writeln("suppress 1"),
-	suppress([U,_,Pere,Act],Ps,NewPs),
+	suppress([U,_,_,_],Ps,NewPs),
 	writeln("suppress"),
-	expand([U,[F,H,G],Pere,Act],List),
+	expand(U,G,List),
 	writeln("expand"),
+	length(List,Int),
+	writeln(Int),
 	loop_successors(List,NewPf, NewPs,Qs,Pf_2, Ps_2),
 	insert(U,Qs,NewQs),
 	aetoile(Pf_2,Ps_2,NewQs).
 	
 
 
-expand([U,[F,H,G],Pere,Act],Y):-
-		findall([Next,[Fs,Hs,Gs],[U,[F,H,G],Pere,Act],New_Act],expand_cost(U,G,Gs,Next,Hs,Fs,New_Act),Y).
+expand(U,G,Y):-
+		findall([Next,[Fs,Hs,Gs],U,New_Act],expand_cost(U,G,Gs,Next,Hs,Fs,New_Act),Y).
 
 expand_cost(U,G,Gs,Next,Hs,Fs,New_Act):-
 	rule(New_Act,1,U,Next),
@@ -106,6 +108,8 @@ loop_successors([],Pf,Ps,_,Pf, Ps):-writeln("ici").
 
 loop_successors([[U,[F,H,G],Min,Act]|Rest],Pf,Ps,Qs,New_pf2, New_ps2):-
 	writeln("deb loop"),
+	length(Rest, Int),
+	write(Int),
 	(belongs(U,Qs)->
 		writeln(U),
 		writeln(Qs),
@@ -131,7 +135,7 @@ update([U,[F,H,G],Min,Act],Pu,Pf,Pu_2,Pf_2):-
 	writeln("update"),
 	suppress([U,[F1,H1,G1],Pere,A],Pu,New_Pu),
 	F1 > F -> insert([U,[F,H,G],Min,Act],New_Pu,Pu_2),suppress([U,[F1,H1,G1]],Pf,New_Pf),insert([[F,H,G],U],New_Pf,Pf_2),
-	insert([U,[F1,H1,G1],Pere,A],New_Pu,Pu_2), Pf_2 is Pf,F,G,H,Min,Act.
+	insert([U,[F1,H1,G1],Pere,A],New_Pu,Pu_2), Pf_2 is Pf.
 
 
 

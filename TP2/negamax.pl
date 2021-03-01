@@ -46,16 +46,38 @@ Situation_suivante ; loop_negamax/5 retourne une liste de
 couples [Coup_possible, Valeur]
 
 - parmi cette liste, on garde le meilleur couple, c-a-d celui
-qui a la plus petite valeur (cf. predicat meilleur/2);
+adversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)dversaire(o,x)ui a la plus petite valeur (cf. predicat meilleur/2);
 soit [C1,V1] ce couple optimal. Le predicat meilleur/2
 effectue cette selection.
 
-- finalement le couple retourne par negamax est [Coup, V2]
+- finalement le couple rene par negamax est [Coup, V2]
 avec : V2 is -V1 (cf. convention negamax vue en cours).
 
 A FAIRE : ECRIRE ici les clauses de negamax/5
 .....................................
 */
+
+negamax(J,Etat, Pmax,Pmax,[nil,V]):-
+  heuristique(J,Etat,V).
+  
+negamax(J,Etat,P,Pmax,[nil,V]):-
+  P<Pmax,
+  situation_terminale(J,Etat),
+  heuristique(J,Etat,V).
+
+negamax(J,Etat,P,Pmax,[Coup,V]):-
+    P<Pmax,
+    successeurs(J,Etat,Succ),
+    loop_negamax(J,P,Pmax,Succ,Reste_Couples),
+    meilleur(Reste_Couples,[Coup,V1]),
+    V is -V1.
+
+
+
+
+
+
+
 
 
 /*******************************************
@@ -128,7 +150,11 @@ meilleur([[C1,V1]|[[C2,V2]|Rest]],[C,V]):-
 
 main(B,V, Pmax) :-
 
-true.        
+  joueur_initial(J1),
+
+	situation_initiale(S1),
+
+	negamax(J1, S1, 0, Pmax, [B,V]).      
 
 
 /*
