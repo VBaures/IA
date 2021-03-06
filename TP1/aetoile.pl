@@ -72,18 +72,16 @@ aetoile(Pf, Ps, _) :-
 
 aetoile(Pf, Ps, Qs) :-
 	final_state(Fin),
-	suppress_min([[_,_,G],U],Pf,NewPf),
+	suppress_min([[F,H,G],U],Pf,NewPf),
 	(U = Fin ->
-		writeln("arrive à la fin"),
-		suppress([U,_,_,_],Ps,NewPs),
-		insert(U,Qs,NewQs),
-		affiche_solution(Qs, U) 
+		suppress([Fin, [F2, H2, G2], Pere, Act], Ps, _New_Pu),
+		insert([Fin, [F2, H2, G2], Pere, Act], Qs, NewQs),
+		affiche_solution(NewQs, U) 
 	;
-		suppress([U,_,_,_],Ps,NewPs),
+		suppress([U,[F,H,G],Pere,Act],Ps,NewPs),
 		expand(U,G,List),
 		loop_successors(List,NewPf, NewPs,Qs,Pf_2, Ps_2),
-		insert(U,Qs,NewQs),
-
+		insert([U,[F,H,G],Pere,Act],Qs,NewQs),
 		aetoile(Pf_2,Ps_2,NewQs)
 	).
 	
@@ -117,7 +115,6 @@ loop_successors([[U,[F,H,G],Min,Act]|Rest],Pf,Ps,Qs,New_pf2, New_ps2):-
   
 update([U,[F,H,G],Min,Act],Pu,Pf,Pu_2,Pf_2):-
 	suppress([U,[F1,H1,G1],Pere,A],Pu,New_Pu),
-	writeln("supress done"),
 
 	(F1 > F -> 
 		insert([U,[F,H,G],Min,Act],New_Pu,Pu_2),
@@ -131,21 +128,21 @@ update([U,[F,H,G],Min,Act],Pu,Pf,Pu_2,Pf_2):-
 
 
 affiche_solution(Qs, U) :-
-	writeln("entre ici"),
 	belongs([U, _, nil, nil], Qs),
-	writeln("arrive"),
-	write("\n=== Solution ===\n\n"),
+	write("\n========= Solution du taquin ========\n\n"),
 	write_state(U).
 
 affiche_solution(Qs, U) :-
-	writeln("entre la"),
-	belongs([U, _, PereU, ActionU], Qs),
-	writeln("passe belong"),
-	PereU \= nil,
-	affiche_solution(Qs, PereU),
+	belongs([U, _, Pere, Act], Qs),
+	Pere \= nil,
+	affiche_solution(Qs, Pere),
 
 	write("\n\t|\n\t"),
-	write(ActionU),
+	write(Act),
 	write("\n\t|\n"),
 	write("\tv\n"),
 	write_state(U).
+
+
+%********************************** Test Unitaire ***********************************************%
+
