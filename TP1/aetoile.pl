@@ -70,27 +70,22 @@ aetoile(Pf, Ps, _) :-
 	empty(Ps),
 	writeln("Pas de solution: l'état final n'est pas atteignable!").
 
-aetoile(Pf, nil, Qs) :-
-	writeln("debut 2"),
-	final_state(Fin),
-	suppress_min(Min,Pf,_),
-	[_,U] is Min,
-	Fin is U,
-	affiche_solution(Qs, Fin) .
-
 aetoile(Pf, Ps, Qs) :-
-	writeln("debut"),
+	final_state(Fin),
 	suppress_min([[_,_,G],U],Pf,NewPf),
-	writeln("suppress 1"),
-	suppress([U,_,_,_],Ps,NewPs),
-	writeln("suppress"),
-	expand(U,G,List),
-	writeln("expand"),
-	length(List,Int),
-	writeln(Int),
-	loop_successors(List,NewPf, NewPs,Qs,Pf_2, Ps_2),
-	insert(U,Qs,NewQs),
-	aetoile(Pf_2,Ps_2,NewQs).
+	(U = Fin ->
+		writeln("arrive à la fin"),
+		suppress([U,_,_,_],Ps,NewPs),
+		insert(U,Qs,NewQs),
+		affiche_solution(Qs, U) 
+	;
+		suppress([U,_,_,_],Ps,NewPs),
+		expand(U,G,List),
+		loop_successors(List,NewPf, NewPs,Qs,Pf_2, Ps_2),
+		insert(U,Qs,NewQs),
+
+		aetoile(Pf_2,Ps_2,NewQs)
+	).
 	
 
 
@@ -104,48 +99,48 @@ expand_cost(U,G,Gs,Next,Hs,Fs,New_Act):-
 	Fs is Gs+Hs.
 
 
-loop_successors([],Pf,Ps,_,Pf, Ps):-writeln("ici").
+loop_successors([],Pf,Ps,_,Pf, Ps).
 
 loop_successors([[U,[F,H,G],Min,Act]|Rest],Pf,Ps,Qs,New_pf2, New_ps2):-
-	writeln("deb loop"),
-	length(Rest, Int),
-	write(Int),
 	(belongs(U,Qs)->
-		writeln(U),
-		writeln(Qs),
-		writeln(Rest),loop_successors(Rest,Pf,Ps,Qs,New_pf2, New_ps2)
+		loop_successors(Rest,Pf,Ps,Qs,New_pf2, New_ps2)
 	;
 		(belongs([U,_,_,_],Ps)->
-			writeln(Rest),
 			update([U,[F,H,G],Min,Act],Ps,Pf,Ps_2,Pf_2), 
 			loop_successors(Rest,Pf_2,Ps_2,Qs,New_pf2, New_ps2)
 		;
-			writeln("insert loop"),
 			insert([U,[F,H,G],Min,Act],Ps,Ps_2),
-			put_flat(Pf),nl,nl,
-			writeln([ [F,H,G], U]), nl,
-			write(Pf_2),
 			insert([ [F,H,G], U],Pf,Pf_2),
-			writeln("courgette"),
 			loop_successors(Rest,Pf_2,Ps_2,Qs,New_pf2, New_ps2)
 		)
 	).
   
 update([U,[F,H,G],Min,Act],Pu,Pf,Pu_2,Pf_2):-
-	writeln("update"),
 	suppress([U,[F1,H1,G1],Pere,A],Pu,New_Pu),
-	F1 > F -> insert([U,[F,H,G],Min,Act],New_Pu,Pu_2),suppress([U,[F1,H1,G1]],Pf,New_Pf),insert([[F,H,G],U],New_Pf,Pf_2),
-	insert([U,[F1,H1,G1],Pere,A],New_Pu,Pu_2), Pf_2 is Pf.
+	writeln("supress done"),
+
+	(F1 > F -> 
+		insert([U,[F,H,G],Min,Act],New_Pu,Pu_2),
+		suppress([U,[F1,H1,G1]],Pf,New_Pf),
+		insert([[F,H,G],U],New_Pf,Pf_2)
+	;
+		insert([U,[F1,H1,G1],Pere,A],New_Pu,Pu_2),
+		Pf_2 = Pf
+	).
 
 
 
 affiche_solution(Qs, U) :-
+	writeln("entre ici"),
 	belongs([U, _, nil, nil], Qs),
+	writeln("arrive"),
 	write("\n=== Solution ===\n\n"),
 	write_state(U).
 
 affiche_solution(Qs, U) :-
+	writeln("entre la"),
 	belongs([U, _, PereU, ActionU], Qs),
+	writeln("passe belong"),
 	PereU \= nil,
 	affiche_solution(Qs, PereU),
 
