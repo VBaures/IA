@@ -49,7 +49,7 @@ Predicat principal de l'algorithme :
 
 main :-
     initial_state(S0),
-    heuristique2(S0,H0),
+    heuristique(S0,H0),
 	% initialisations Pf, Pu et Q 
 	empty(Pf),
 	empty(Ps),
@@ -93,14 +93,15 @@ expand(U,G,Y):-
 expand_cost(U,G,Gs,Next,Hs,Fs,New_Act):-
 	rule(New_Act,1,U,Next),
 	Gs is G+1,
-	heuristique2(Next,Hs),
+	heuristique(Next,Hs),
 	Fs is Gs+Hs.
 
 
 loop_successors([],Pf,Ps,_,Pf, Ps).
 
 loop_successors([[U,[F,H,G],Min,Act]|Rest],Pf,Ps,Qs,New_pf2, New_ps2):-
-	(belongs(U,Qs)->
+	(belongs([U,_,_,_],Qs)->
+		writeln("DEJA FAIT"),
 		loop_successors(Rest,Pf,Ps,Qs,New_pf2, New_ps2)
 	;
 		(belongs([U,_,_,_],Ps)->
@@ -115,7 +116,6 @@ loop_successors([[U,[F,H,G],Min,Act]|Rest],Pf,Ps,Qs,New_pf2, New_ps2):-
   
 update([U,[F,H,G],Min,Act],Pu,Pf,Pu_2,Pf_2):-
 	suppress([U,[F1,H1,G1],Pere,A],Pu,New_Pu),
-
 	(F1 > F -> 
 		insert([U,[F,H,G],Min,Act],New_Pu,Pu_2),
 		suppress([U,[F1,H1,G1]],Pf,New_Pf),
@@ -145,4 +145,27 @@ affiche_solution(Qs, U) :-
 
 
 %********************************** Test Unitaire ***********************************************%
+test_expand:-
+    initial_state(Ini),
+    expand(Ini,0,List),
+    write_state(List).
 
+test_loop_successor:-
+    initial_state(S0),
+
+    empty(Pf),
+    empty(Ps),
+    empty(Qs),
+
+    insert([[H0,H0,0],S0],Pf,NewPf),
+    insert([S0,[H0,H0,0],nil,nil],Ps,NewPs),
+
+    writeln("OLD PF"),
+    put_flat(NewPf),
+    nl,
+    nl,
+    suppressmin([[,_,G],U],NewPf,Pf_2),
+    expand(U,G,List),
+    loop_successors(List,Pf_2, NewPs,Qs,Pf_3, _Ps_2),
+    writeln("NEW PF"),
+    put_flat(Pf_3).
