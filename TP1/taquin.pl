@@ -213,6 +213,16 @@ heuristique(U,H) :-
     	     coordonnees([Li,Ci],Ini,Elt),
            coordonnees([Lf,Cf],Fin,Elt),
            Dist is abs(Lf-Li)+abs(Cf-Ci).
+
+   distance_manhattan_heurastique(U,H,U,Fin) :-
+      findall(Dist, distance_manhattan(Elt, Dist, U,Fin), Distances),
+      sumlist(Distances, H).
+
+   heuristique2(U, H) :-
+		final_state(Fin),
+		distance_manhattan_heurastique(U,H,U,Fin).
+
+
 /*
 	distance_manhattan_list([],0,_,_).
 	distance_manhattan_list([L1|R1],Dist,Ini,Fin):-
@@ -226,15 +236,6 @@ heuristique(U,H) :-
     	distance_manhattan_heurastique(R1,Dist2,Ini,Fin),
     	Dist is Dist1+Dist2.
 */
-distance_manhattan_heurastique(U,H,U,Fin) :-
-   findall(Dist, distance_manhattan(Elt, Dist, U,Fin), Distances),
-   sumlist(Distances, H).
-
-
-
-    heuristique2(U, H) :-
-		final_state(Fin),
-		distance_manhattan_heurastique(U,H,U,Fin).
 %********
                                     % A FAIRE
                                     %********
